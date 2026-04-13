@@ -1695,6 +1695,42 @@ function handlePromptInjection(data) {
             });
         }
     }
+
+    // ---------------------------------------------------------
+    // 3. DIRECT MESSAGE INJECTION (Bypass preset depth issues)
+    // ---------------------------------------------------------
+    // SillyTavern's squash_system_messages can eat depth-4 blocks.
+    // We inject plotroll & traits DIRECTLY into the messages array
+    // so they are guaranteed to reach the AI.
+
+    if (localProfile.blocks.includes("plotroll")) {
+        try {
+            const plotContent = generatePlotRollInjection();
+            if (plotContent && plotContent.trim() !== "") {
+                // Insert as second-to-last message (before autoroll if present)
+                const insertIdx = Math.max(0, messages.length - 1);
+                messages.splice(insertIdx, 0, { role: "system", content: plotContent });
+                console.log(`[${extensionName}] 📍 Direct-injected Plot Roll message`);
+            }
+        } catch (e) {
+            console.error(`[${extensionName}] ❌ Plot Roll direct injection failed:`, e);
+        }
+    }
+
+    if (localProfile.blocks.includes("traits")) {
+        try {
+            const traitContent = generateTraitInjection();
+            if (traitContent && traitContent.trim() !== "") {
+                // Insert as second-to-last message
+                const insertIdx = Math.max(0, messages.length - 1);
+                messages.splice(insertIdx, 0, { role: "system", content: traitContent });
+                console.log(`[${extensionName}] 📍 Direct-injected NPC Traits message`);
+            }
+        } catch (e) {
+            console.error(`[${extensionName}] ❌ NPC Traits direct injection failed:`, e);
+        }
+    }
+
     if (replacementsMade > 0 && !activeGenerationOrder) {
         console.log(`[${extensionName}] ✅ Executed ${replacementsMade} hardcoded block replacements.`);
     }
