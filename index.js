@@ -1544,6 +1544,8 @@ function buildBaseDict() {
     localProfile.addons.forEach(aId => { const item = hardcodedLogic.addons.find(a => a.id === aId); if (item) dict[item.trigger] = item.content; });
     localProfile.blocks.forEach(bId => { const item = hardcodedLogic.blocks.find(b => b.id === bId); if (item) dict[item.trigger] = item.content; });
 
+    console.log(`[${extensionName}] 🔍 Active blocks:`, JSON.stringify(localProfile.blocks));
+
     // PLOT ROLL — Override static content with dynamic JS-side dice roll
     if (localProfile.blocks.includes("plotroll")) {
         dict["[[plotroll]]"] = generatePlotRollInjection();
@@ -1551,7 +1553,15 @@ function buildBaseDict() {
 
     // NPC TRAITS — Override static content with randomized trait pool
     if (localProfile.blocks.includes("traits")) {
-        dict["[[npc_traits]]"] = generateTraitInjection();
+        try {
+            const traitContent = generateTraitInjection();
+            dict["[[npc_traits]]"] = traitContent;
+            console.log(`[${extensionName}] ✅ Trait injection generated (${traitContent.length} chars)`);
+        } catch (e) {
+            console.error(`[${extensionName}] ❌ Trait injection FAILED:`, e);
+        }
+    } else {
+        console.log(`[${extensionName}] ⚠️ "traits" NOT found in localProfile.blocks`);
     }
 
 
