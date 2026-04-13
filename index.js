@@ -1546,23 +1546,9 @@ function buildBaseDict() {
 
     console.log(`[${extensionName}] 🔍 Active blocks:`, JSON.stringify(localProfile.blocks));
 
-    // PLOT ROLL — Override static content with dynamic JS-side dice roll
-    if (localProfile.blocks.includes("plotroll")) {
-        dict["[[plotroll]]"] = generatePlotRollInjection();
-    }
-
-    // NPC TRAITS — Override static content with randomized trait pool
-    if (localProfile.blocks.includes("traits")) {
-        try {
-            const traitContent = generateTraitInjection();
-            dict["[[npc_traits]]"] = traitContent;
-            console.log(`[${extensionName}] ✅ Trait injection generated (${traitContent.length} chars)`);
-        } catch (e) {
-            console.error(`[${extensionName}] ❌ Trait injection FAILED:`, e);
-        }
-    } else {
-        console.log(`[${extensionName}] ⚠️ "traits" NOT found in localProfile.blocks`);
-    }
+    // NOTE: Plot Roll and NPC Traits are handled by DIRECT MESSAGE INJECTION
+    // at the bottom of handlePromptInjection(). Do NOT call generatePlotRollInjection()
+    // or generateTraitInjection() here — doing so causes double-rolling and kills cooldowns.
 
 
     const wordCountStr = (localProfile.userWordCount && String(localProfile.userWordCount).trim() !== "")
